@@ -30,6 +30,24 @@ const messages = await Promise.all(messageBlobs.map(async ({key}) =>
 	</main>
 </Layout>
 
+<script>
+const sse = new EventSource('/message-feed');
+
+sse.onerror = function (event) {
+  console.error({ event });
+};
+
+const ul = document.querySelector('ul');
+
+sse.addEventListener("message", function (event) {
+  console.log(event)
+  const li = document.createElement('li');
+  li.innerText = event.data;
+  // TODO actually hook this up to react, with something like `useSyncExternalStore()`
+  ul?.appendChild(li);
+})
+</script>
+
 <style>
 	main {
 		margin: auto;
