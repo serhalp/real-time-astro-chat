@@ -1,24 +1,31 @@
 ---
+import {getStore} from "@netlify/blobs";
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
+import SendChatMessage from '../components/SendChatMessage';
+
+const store = getStore("messages");
+const {blobs: messageBlobs} = await store.list();
+const messages = await Promise.all(messageBlobs.map(async ({key}) => 
+	store.get(key, {type: "json"})
+));
 ---
 
 <Layout title="Welcome to Astro.">
 	<main>
 		<h1><span class="text-gradient">Astro Real-time Chat</span></h1>
 
+		<SendChatMessage client:load />
+
 		<h2>Latest messages:</h2>
 		<ul role="list" class="link-card-grid">
-			<Card
-				sender="Michal"
-				timestamp="Jul 18 10:21am"
-				body="Hello world"
-			/>
-			<Card
-				sender="Jenae"
-				timestamp="Jul 18 10:23am"
-				body="Pong"
-			/>
+			{messages.map(({sender, timestamp, body}) => (
+				<Card
+					sender={sender}
+					timestamp={timestamp}
+					body={body}
+				/>
+			))}
 		</ul>
 	</main>
 </Layout>
